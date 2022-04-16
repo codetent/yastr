@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "yastr"
+version = "0.1.0"
+description = "Yet another simple test runner"
+authors = ["Your Name <you@example.com>"]
+license = "MIT"
+packages = [
+    { include = "yastr", from = "src" },
+]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+pytest = "^7.1.1"
+marshmallow-dataclass = {extras = ["union"], version = "^8.5.3"}
+Jinja2 = "^3.1.1"
+
+[tool.poetry.dev-dependencies]
+
+[tool.poetry.plugins.pytest11]
+yastr = "yastr.plugin"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
