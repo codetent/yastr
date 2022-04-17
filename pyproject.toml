@@ -16,11 +16,8 @@ Jinja2 = "^3.1.1"
 
 [tool.poetry.dev-dependencies]
 
-[tool.poetry.plugins.pytest11]
-yastr = "yastr.plugin"
-
 [tool.poetry.scripts]
-yastr = "pytest:console_main"
+yastr = "yastr:main"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
