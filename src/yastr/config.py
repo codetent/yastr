@@ -32,7 +32,7 @@ class TestConfig:
     name: Optional[str] = None
     skip: bool = False
     markers: List[Union[str, List[str]]] = field(default_factory=list, metadata={'validate': validate_markers})
-    script: Optional[str] = None
+    scripts: List[str] = field(default_factory=list)
 
     @property
     def resolved_markers(self) -> List[pytest.Mark]:

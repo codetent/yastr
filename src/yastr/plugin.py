@@ -3,7 +3,7 @@ from functools import cached_property
 from pathlib import Path
 from subprocess import run, CalledProcessError
 
-from pytest import Item, File, skip
+from pytest import File, Item, Module, skip
 from _pytest.outcomes import Failed
 
 from .config import TestConfig, load_config
@@ -34,6 +34,10 @@ class ExecutableItem(Item):
         new_env.update(self.test_config.environment)
         return new_env
 
+    @property
+    def nodeid(self) -> str:
+        return f'{self.parent.nodeid}::{self.test_config.executable}'
+
     def reportinfo(self):
         return self.fspath, 0, ''
 
@@ -43,6 +47,7 @@ class ExecutableItem(Item):
 
         proc = run(
             [self.fspath] + self.test_config.args,
+            shell=True,
             env=self.test_env,
             capture_output=True,
             text=True,
@@ -57,6 +62,12 @@ class ExecutableItem(Item):
             raise Failed(str(ex), pytrace=False) from None
 
 
+class PythonScript(Module):
+    @property
+    def nodeid(self) -> str:
+        return str(self.path.parent)
+
+
 class ExecutableFile(File):
     @property
     def test_config(self):
@@ -64,7 +75,7 @@ class ExecutableFile(File):
 
     @property
     def nodeid(self) -> str:
-        return str(self.path)
+        return str(self.path.parent)
 
     def collect(self):
         yield ExecutableItem.from_parent(name=self.name, parent=self)
@@ -72,18 +83,25 @@ class ExecutableFile(File):
 
 class TestConfigFile(File):
     @cached_property
+    def _fixtureinfo(self):
+        return self.session._fixturemanager.getfixtureinfo(self, None, None, False)
+
+    @cached_property
     def test_config(self):
         return load_config(self.path)
 
     @property
     def nodeid(self) -> str:
-        name = self.test_config.name or self.test_config.executable
-        return str(self.path.parent / name)
+        rel_path = self.path.parent.relative_to(self.session.config.rootpath)
+        return rel_path.as_posix()
 
     def collect(self):
         executable_path = self.path.parent / self.test_config.executable
         yield ExecutableItem.from_parent(name=executable_path.name, parent=self, path=executable_path)
 
+        for script in self.test_config.scripts:
+            script_path = self.path.parent / script
+            yield PythonScript.from_parent(self, path=script_path)
 
 
 def pytest_collect_file(path, parent):
