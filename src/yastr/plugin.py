@@ -47,7 +47,6 @@ class ExecutableItem(Item):
 
         proc = run(
             [self.fspath] + self.test_config.args,
-            shell=True,
             env=self.test_env,
             capture_output=True,
             text=True,
@@ -71,11 +70,12 @@ class PythonScript(Module):
 class ExecutableFile(File):
     @property
     def test_config(self):
-        return TestConfig(executable=self.path)
+        return TestConfig(executable=self.path.name)
 
     @property
     def nodeid(self) -> str:
-        return str(self.path.parent)
+        rel_path = self.path.parent.relative_to(self.session.config.rootpath)
+        return rel_path.as_posix()
 
     def collect(self):
         yield ExecutableItem.from_parent(name=self.name, parent=self)
