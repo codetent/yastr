@@ -10,9 +10,10 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "^3.8"
-pytest = "^7.1.1"
+
+anyconfig = {extras = ["template", "yaml"], version = "^0.13.0"}
 marshmallow-dataclass = {extras = ["union"], version = "^8.5.3"}
-Jinja2 = "^3.1.1"
+pytest = "^7.1.1"
 
 [tool.poetry.dev-dependencies]
 

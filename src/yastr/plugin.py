@@ -12,8 +12,10 @@ from .config import TestConfig, load_config
 CONFIG_FILE_NAMES = [
     'test-config.json',
     'test-config.json.j2',
-    'test-config.json.jinja2',
-    'test-config.json.jinja',
+    'test-config.yml',
+    'test-config.yml.j2',
+    'test-config.yaml',
+    'test-config.yaml.j2',
 ]
 
 

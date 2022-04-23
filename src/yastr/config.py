@@ -1,13 +1,14 @@
-import json
 import os
 import platform
 from dataclasses import dataclass, field
 from typing import List, Dict, Optional, Union
 
+import anyconfig
 import pytest
-from jinja2 import Environment, FileSystemLoader
 from marshmallow import ValidationError
 from marshmallow_dataclass import class_schema
+
+from .errors import ConfigError
 
 
 def validate_markers(obj):
@@ -49,11 +50,9 @@ TestConfigSchema = class_schema(TestConfig)
 
 
 def load_config(path):
-    loader = FileSystemLoader(searchpath=path.parent)
-    env = Environment(loader=loader)
+    try:
+        config = anyconfig.load(path, ac_template=True, ac_context={'os': os, 'platform': platform})
+    except Exception as ex:
+        raise ConfigError.of(ex)
 
-    cfg_template = env.get_template(path.name)
-    cfg_text = cfg_template.render({'os': os, 'platform': platform})
-
-    config_dict = json.loads(cfg_text)
-    return TestConfigSchema().load(config_dict)
+    return TestConfigSchema().load(config)
