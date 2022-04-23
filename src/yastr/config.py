@@ -54,4 +54,4 @@ def load_config(path):
         config = anyconfig.load(path, ac_template=True, ac_context={'os': os, 'platform': platform})
         return TestConfigSchema().load(config)
     except Exception as ex:
-        raise ConfigError.of(ex)
+        raise ConfigError.of(ex, path=path)
