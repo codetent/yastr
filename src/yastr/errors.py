@@ -1,8 +1,9 @@
 from functools import singledispatchmethod
 from json import JSONDecodeError
 from textwrap import indent
+from pprint import pformat
 
-from yaml.parser import ParserError as YamlParseError
+from marshmallow import ValidationError
 
 
 def mark_text(text, lineno, colno, surround=10):
@@ -26,4 +27,11 @@ class ConfigError(RuntimeError):
         return ConfigError('\n'.join([
             f'Invalid JSON syntax at line {ex.lineno} column {ex.colno}:',
             indent(mark_text(ex.doc, ex.lineno, ex.colno), '\t'),
+        ]))
+
+    @of.register
+    def _(ex: ValidationError):
+        return ConfigError('\n'.join([
+            f'Invalid configuration values:',
+            indent(pformat(ex.messages), '\t')
         ]))
