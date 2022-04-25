@@ -26,12 +26,16 @@ class ConfigError(RuntimeError):
 
     def __str__(self):
         text = self.msg + (f': {self.path}' if self.path else '')
-        return '\n'.join([text, indent(self.details, '\t')])
+
+        if self.details:
+            text += '\n' + indent(self.details, '\t')
+
+        return text
 
     @singledispatchmethod
     @staticmethod  # Use staticmethod (see: https://bugs.python.org/issue39679)
-    def of(ex):
-        return ConfigError(str(ex))
+    def of(ex, **kwargs):
+        return ConfigError(str(ex), **kwargs)
 
     @of.register
     def _(ex: JSONDecodeError, **kwargs):
