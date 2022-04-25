@@ -1,19 +1,3 @@
-def test_file_no_config(pytester):
-    pytester.makefile('.txt', testfile='')
-
-    run = pytester.inline_run(plugins=['yastr.plugin'])
-    item = run.getcall('pytest_runtest_call').item
-
-    assert item.nodeid == '.::testfile.txt'
-    assert item.test_config.executable == 'testfile.txt'
-    assert item.test_config.args == []
-    assert item.test_config.environment == {}
-    assert item.test_config.name == None
-    assert item.test_config.skip == False
-    assert item.test_config.markers == []
-    assert item.test_config.scripts == []
-
-
 def test_file_empty_config(pytester):
     pytester.makefile('.txt', testfile='')
     pytester.makefile('.json', **{'test-config': ''})
