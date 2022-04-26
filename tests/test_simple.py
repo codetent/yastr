@@ -6,8 +6,6 @@ def test_single_file(pytester):
 
     assert not skipped
     assert not failed
-
-    assert passed[0].passed
     assert passed[0].nodeid == '.::testfile.bat'
     assert passed[0].capstdout.strip() == 'works!'
     assert passed[0].capstderr.strip() == ''
@@ -23,7 +21,6 @@ def test_multiple_files(pytester):
     assert not failed
 
     for name, report in zip(['a', 'b'], passed):
-        assert report.passed
         assert report.nodeid == f'.::test_{name}.bat'
         assert report.capstdout.strip() == f'{name} works!'
         assert report.capstderr.strip() == ''
@@ -43,7 +40,6 @@ def test_subdir_files(pytester):
     assert not failed
 
     for name, report in zip(['a', 'b'], passed):
-        assert report.passed
         assert report.nodeid == f'mod{name}::test.bat'
         assert report.capstdout.strip() == f'{name} works!'
         assert report.capstderr.strip() == ''
@@ -58,7 +54,6 @@ def test_executable(pytester):
 
     assert not skipped
     assert not failed
-    assert passed[0].passed
     assert passed[0].nodeid == '.::testfile.bat'
     assert passed[0].capstdout.strip() == 'works!'
     assert passed[0].capstderr.strip() == ''
@@ -73,7 +68,6 @@ def test_args(pytester):
 
     assert not skipped
     assert not failed
-    assert passed[0].passed
     assert passed[0].nodeid == '.::testfile.bat'
     assert passed[0].capstdout.strip() == 'foo bar'
     assert passed[0].capstderr.strip() == ''
@@ -88,7 +82,6 @@ def test_env(pytester):
 
     assert not skipped
     assert not failed
-    assert passed[0].passed
     assert passed[0].nodeid == '.::testfile.bat'
     assert passed[0].capstdout.strip() == 'bar'
     assert passed[0].capstderr.strip() == ''

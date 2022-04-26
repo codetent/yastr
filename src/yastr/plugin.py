@@ -38,8 +38,14 @@ class ExecutableItem(Item):
         if self.test_config.skip:
             skip('Skip by user config')
 
+        cmd = [self.fspath] + self.test_config.args
+
+        test_driver = self.config.getini('test_driver')
+        if test_driver:
+            cmd = [test_driver] + cmd
+
         proc = run(
-            [self.fspath] + self.test_config.args,
+            cmd,
             env=self.test_env,
             capture_output=True,
             text=True,
@@ -113,6 +119,12 @@ def pytest_addoption(parser):
             'test-config.yaml.j2',
         ],
         help='file names of test config files',
+    )
+    parser.addini(
+        'test_driver',
+        type='string',
+        default=None,
+        help='test driver executable that calls the test executable like <driver> <executable> <args>',
     )
 
 
