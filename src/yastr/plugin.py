@@ -8,15 +8,6 @@ from _pytest.outcomes import Failed
 
 from .config import TestConfig, load_config
 
-CONFIG_FILE_NAMES = [
-    'test-config.json',
-    'test-config.json.j2',
-    'test-config.yml',
-    'test-config.yml.j2',
-    'test-config.yaml',
-    'test-config.yaml.j2',
-]
-
 
 class ExecutableItem(Item):
 
@@ -109,9 +100,25 @@ class TestConfigFile(File):
             yield PythonScript.from_parent(self, path=script_path)
 
 
+def pytest_addoption(parser):
+    parser.addini(
+        'config_files',
+        type='args',
+        default=[
+            'test-config.json',
+            'test-config.json.j2',
+            'test-config.yml',
+            'test-config.yml.j2',
+            'test-config.yaml',
+            'test-config.yaml.j2',
+        ],
+        help='file names of test config files',
+    )
+
+
 def pytest_collect_file(path, parent):
     path = Path(path)
-    config_paths = [path.parent / name for name in CONFIG_FILE_NAMES]
+    config_paths = [path.parent / name for name in parent.config.getini('config_files')]
     config_exists = any([path.exists() for path in config_paths])
 
     if config_exists:
