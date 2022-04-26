@@ -30,7 +30,6 @@ class TestConfig:
     executable: str
     args: List[str] = field(default_factory=list)
     environment: Dict[str, str] = field(default_factory=dict)
-    name: Optional[str] = None
     skip: bool = False
     markers: List[Union[str, List[str]]] = field(default_factory=list, metadata={'validate': validate_markers})
     scripts: List[str] = field(default_factory=list)
