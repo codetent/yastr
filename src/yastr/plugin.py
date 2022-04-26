@@ -8,7 +8,6 @@ from _pytest.outcomes import Failed
 
 from .config import TestConfig, load_config
 
-
 CONFIG_FILE_NAMES = [
     'test-config.json',
     'test-config.json.j2',
@@ -20,6 +19,7 @@ CONFIG_FILE_NAMES = [
 
 
 class ExecutableItem(Item):
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -53,7 +53,7 @@ class ExecutableItem(Item):
             capture_output=True,
             text=True,
         )
-        
+
         self.add_report_section('call', 'stdout', proc.stdout)
         self.add_report_section('call', 'stderr', proc.stderr)
 
@@ -64,12 +64,14 @@ class ExecutableItem(Item):
 
 
 class PythonScript(Module):
+
     @property
     def nodeid(self) -> str:
         return str(self.path.parent)
 
 
 class ExecutableFile(File):
+
     @property
     def test_config(self):
         return TestConfig(executable=self.path.name)
@@ -84,6 +86,7 @@ class ExecutableFile(File):
 
 
 class TestConfigFile(File):
+
     @cached_property
     def _fixtureinfo(self):
         return self.session._fixturemanager.getfixtureinfo(self, None, None, False)

@@ -10,7 +10,6 @@ from marshmallow_dataclass import class_schema
 
 from .errors import ConfigError
 
-
 MarkerType = str
 MarkerArgsType = Tuple[str, List[Any]]
 MarkerKwargsType = Tuple[str, Dict[str, Any]]
@@ -44,6 +43,7 @@ class TestConfig:
 
     @property
     def resolved_markers(self) -> List[pytest.Mark]:
+
         def _resolve(spec):
             if isinstance(spec, str):
                 return getattr(pytest.mark, spec)

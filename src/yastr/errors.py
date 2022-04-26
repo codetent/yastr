@@ -18,6 +18,7 @@ def mark_text(text, lineno, colno, surround=10):
 
 
 class ConfigError(RuntimeError):
+
     def __init__(self, msg: str, details: Optional[str] = None, path=None) -> None:
         super().__init__(msg)
         self.msg = msg

@@ -25,9 +25,10 @@ def test_args(pytester):
 
 def test_kwargs(pytester):
     pytester.makefile('.bat', testfile='@echo works!')
-    pytester.makefile('.json', **{
-        'test-config': '{"executable": "testfile.bat", "markers": [["skip", {"reason": "foobar"}]]}',
-    })
+    pytester.makefile(
+        '.json', **{
+            'test-config': '{"executable": "testfile.bat", "markers": [["skip", {"reason": "foobar"}]]}',
+        })
 
     run = pytester.inline_run(plugins=['yastr.plugin'])
     passed, skipped, failed = run.listoutcomes()

@@ -96,7 +96,7 @@ tests = ["pytest", "pytz", "simplejson"]
 
 [[package]]
 name = "marshmallow-dataclass"
-version = "8.5.5"
+version = "8.5.6"
 description = "Python library to convert dataclasses into marshmallow schemas."
 category = "main"
 optional = false
@@ -195,6 +195,14 @@ optional = false
 python-versions = ">=3.6"
 
 [[package]]
+name = "toml"
+version = "0.10.2"
+description = "Python Library for Tom's Obvious, Minimal Language"
+category = "dev"
+optional = false
+python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
+
+[[package]]
 name = "tomli"
 version = "2.0.1"
 description = "A lil' TOML parser"
@@ -234,10 +242,18 @@ python-versions = "*"
 mypy-extensions = ">=0.3.0"
 typing-extensions = ">=3.7.4"
 
+[[package]]
+name = "yapf"
+version = "0.32.0"
+description = "A formatter for Python code."
+category = "dev"
+optional = false
+python-versions = "*"
+
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "da5973f9e22855fc3b149daada2eead6a764667f020648326045d64fd907887a"
+content-hash = "6ee387966038a18342ec57d3f11266f188b2b2367de5b50ebe2dce6c723f6fe7"
 
 [metadata.files]
 anyconfig = [
@@ -311,8 +327,8 @@ marshmallow = [
     {file = "marshmallow-3.15.0.tar.gz", hash = "sha256:2aaaab4f01ef4f5a011a21319af9fce17ab13bf28a026d1252adab0e035648d5"},
 ]
 marshmallow-dataclass = [
-    {file = "marshmallow_dataclass-8.5.5-py3-none-any.whl", hash = "sha256:fec131aaf5b0fd60b6d996a92811ed0a18fe156f02c4e014dc030f5bcbcb76f3"},
-    {file = "marshmallow_dataclass-8.5.5.tar.gz", hash = "sha256:1f8e914facec8bab8783b954abe1d25090e3871a83ef7098ea9bc19a649de2f9"},
+    {file = "marshmallow_dataclass-8.5.6-py3-none-any.whl", hash = "sha256:af5c5741d25c19cfdd637f8999418f00a24f46bf688f9e7bbdb350f4367982bd"},
+    {file = "marshmallow_dataclass-8.5.6.tar.gz", hash = "sha256:c3cc4acd5870da336c7230df5cb82ed8e230668769892a6d10a7cc40830d8a79"},
 ]
 mypy-extensions = [
     {file = "mypy_extensions-0.4.3-py2.py3-none-any.whl", hash = "sha256:090fedd75945a69ae91ce1303b5824f428daf5a028d2f6ab8a299250a846f15d"},
@@ -373,6 +389,10 @@ pyyaml = [
     {file = "PyYAML-6.0-cp39-cp39-win_amd64.whl", hash = "sha256:b3d267842bf12586ba6c734f89d1f5b871df0273157918b0ccefa29deb05c21c"},
     {file = "PyYAML-6.0.tar.gz", hash = "sha256:68fb519c14306fec9720a2a5b45bc9f0c8d1b9c72adf45c37baedfcd949c35a2"},
 ]
+toml = [
+    {file = "toml-0.10.2-py2.py3-none-any.whl", hash = "sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b"},
+    {file = "toml-0.10.2.tar.gz", hash = "sha256:b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f"},
+]
 tomli = [
     {file = "tomli-2.0.1-py3-none-any.whl", hash = "sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc"},
     {file = "tomli-2.0.1.tar.gz", hash = "sha256:de526c12914f0c550d15924c62d72abc48d6fe7364aa87328337a31007fe8a4f"},
@@ -389,4 +409,8 @@ typing-inspect = [
     {file = "typing_inspect-0.7.1-py2-none-any.whl", hash = "sha256:b1f56c0783ef0f25fb064a01be6e5407e54cf4a4bf4f3ba3fe51e0bd6dcea9e5"},
     {file = "typing_inspect-0.7.1-py3-none-any.whl", hash = "sha256:3cd7d4563e997719a710a3bfe7ffb544c6b72069b6812a02e9b414a8fa3aaa6b"},
     {file = "typing_inspect-0.7.1.tar.gz", hash = "sha256:047d4097d9b17f46531bf6f014356111a1b6fb821a24fe7ac909853ca2a782aa"},
+]
+yapf = [
+    {file = "yapf-0.32.0-py2.py3-none-any.whl", hash = "sha256:8fea849025584e486fd06d6ba2bed717f396080fd3cc236ba10cb97c4c51cf32"},
+    {file = "yapf-0.32.0.tar.gz", hash = "sha256:a3f5085d37ef7e3e004c4ba9f9b3e40c54ff1901cd111f05145ae313a7c67d1b"},
 ]
