@@ -1,7 +1,7 @@
 import os
 import platform
 from dataclasses import dataclass, field
-from typing import List, Dict, Optional, Union
+from typing import Any, Dict, List, Tuple, Union
 
 import anyconfig
 import pytest
@@ -9,6 +9,11 @@ from marshmallow import ValidationError
 from marshmallow_dataclass import class_schema
 
 from .errors import ConfigError
+
+
+MarkerType = str
+MarkerArgsType = Tuple[str, List[Any]]
+MarkerKwargsType = Tuple[str, Dict[str, Any]]
 
 
 def validate_markers(obj):
@@ -19,8 +24,8 @@ def validate_markers(obj):
         if isinstance(marker_spec, str):
             continue
         elif isinstance(marker_spec, (tuple, list)):
-            if not marker_spec:
-                raise ValidationError(f'At least a marker name must be provided for element {i}', field_name='markers')
+            if len(marker_spec) < 2:
+                raise ValidationError(f'Marker name and arguments missing for element {i}', field_name='markers')
         else:
             raise ValidationError(f'Invalid marker type for element {i}', field_name='markers')
 
@@ -31,7 +36,10 @@ class TestConfig:
     args: List[str] = field(default_factory=list)
     environment: Dict[str, str] = field(default_factory=dict)
     skip: bool = False
-    markers: List[Union[str, List[str]]] = field(default_factory=list, metadata={'validate': validate_markers})
+    markers: List[Union[MarkerType, MarkerArgsType, MarkerKwargsType]] = field(
+        default_factory=list,
+        metadata={'validate': validate_markers},
+    )
     scripts: List[str] = field(default_factory=list)
 
     @property
@@ -40,7 +48,12 @@ class TestConfig:
             if isinstance(spec, str):
                 return getattr(pytest.mark, spec)
             else:
-                return getattr(pytest.mark, spec[0])(*spec[1:])
+                name, args = spec
+                marker = getattr(pytest.mark, name)
+                if isinstance(args, list):
+                    return marker(*args)
+                else:
+                    return marker(**args)
 
         return [_resolve(marker) for marker in self.markers]
 
