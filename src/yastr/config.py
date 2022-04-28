@@ -1,7 +1,7 @@
 import os
 import platform
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import anyconfig
 import pytest
@@ -34,6 +34,8 @@ class TestConfig:
     executable: str
     args: List[str] = field(default_factory=list)
     environment: Dict[str, str] = field(default_factory=dict)
+    timeout: Optional[float] = None
+    encoding: str = 'utf-8'
     skip: bool = False
     markers: List[Union[MarkerType, MarkerArgsType, MarkerKwargsType]] = field(
         default_factory=list,

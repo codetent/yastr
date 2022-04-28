@@ -1,7 +1,8 @@
 import os
+import shutil
 from functools import cached_property
 from pathlib import Path
-from subprocess import run, CalledProcessError
+from subprocess import CalledProcessError, TimeoutExpired, run
 
 from pytest import File, Item, Module, skip
 from _pytest.outcomes import Failed
@@ -28,6 +29,10 @@ class ExecutableItem(Item):
         return new_env
 
     @property
+    def test_timeout(self):
+        return self.test_config.timeout or self.config.getoption('timeout')
+
+    @property
     def nodeid(self) -> str:
         return f'{self.parent.nodeid}::{self.test_config.executable}'
 
@@ -44,20 +49,30 @@ class ExecutableItem(Item):
         if test_driver:
             cmd = [test_driver] + cmd
 
-        proc = run(
-            cmd,
-            env=self.test_env,
-            capture_output=True,
-            text=True,
-        )
-
-        self.add_report_section('call', 'stdout', proc.stdout)
-        self.add_report_section('call', 'stderr', proc.stderr)
-
         try:
-            proc.check_returncode()
+            proc = run(
+                cmd,
+                env=self.test_env,
+                encoding=self.test_config.encoding,
+                timeout=self.test_timeout,
+                text=True,
+                capture_output=True,
+                check=True,
+            )
+        except TimeoutExpired as ex:
+            stdout, stderr = ex.stdout, ex.stderr
+            raise Failed(f'Executable timed out after {self.test_timeout} second(s)', pytrace=False) from None
         except CalledProcessError as ex:
-            raise Failed(str(ex), pytrace=False) from None
+            stdout, stderr = ex.stdout, ex.stderr
+            raise Failed(f'Executable returned code {proc.returncode}', pytrace=False) from None
+        except:
+            stdout, stderr = '', ''
+            raise
+        else:
+            stdout, stderr = proc.stdout, proc.stderr
+        finally:
+            self.add_report_section('call', 'stdout', stdout)
+            self.add_report_section('call', 'stderr', stderr)
 
 
 class PythonScript(Module):
@@ -99,7 +114,11 @@ class TestConfigFile(File):
 
     def collect(self):
         executable_path = self.path.parent / self.test_config.executable
-        yield ExecutableItem.from_parent(name=executable_path.name, parent=self, path=executable_path)
+        if not executable_path.exists():
+            executable_path = Path(shutil.which(self.test_config.executable))
+
+        if executable_path:
+            yield ExecutableItem.from_parent(name=executable_path.name, parent=self, path=executable_path)
 
         for script in self.test_config.scripts:
             script_path = self.path.parent / script
@@ -125,6 +144,14 @@ def pytest_addoption(parser):
         type='string',
         default=None,
         help='test driver executable that calls the test executable like <driver> <executable> <args>',
+    )
+    parser.addoption(
+        '--timeout',
+        type=float,
+        default=None,
+        action='store',
+        dest='timeout',
+        help='default timeout for calling test executables',
     )
 
 

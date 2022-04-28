@@ -97,3 +97,39 @@ def test_skip(pytester):
     assert not passed
     assert not failed
     assert skipped[0].nodeid == '.::testfile.bat'
+
+
+def test_timeout(pytester):
+    pytester.makefile(
+        '.json', **{
+            'test-config':
+            '{"executable": "python", "args": ["-c", "import time; print(\\"foo\\", flush=True); time.sleep(100); print(\\"bar\\", flush=True);"], "timeout": 1}'
+        })
+
+    run = pytester.inline_run(plugins=['yastr.plugin'])
+    passed, skipped, failed = run.listoutcomes()
+
+    assert not passed
+    assert not skipped
+    assert failed[0].nodeid == '.::python'
+    assert failed[0].capstdout.strip() == 'foo'
+    assert failed[0].capstderr.strip() == ''
+    assert 'Executable timed out after 1.0 second(s)' in failed[0].longreprtext
+
+
+def test_default_timeout(pytester):
+    pytester.makefile(
+        '.json', **{
+            'test-config':
+            '{"executable": "python", "args": ["-c", "import time; print(\\"foo\\", flush=True); time.sleep(100); print(\\"bar\\", flush=True);"]}'
+        })
+
+    run = pytester.inline_run('--timeout=1', plugins=['yastr.plugin'])
+    passed, skipped, failed = run.listoutcomes()
+
+    assert not passed
+    assert not skipped
+    assert failed[0].nodeid == '.::python'
+    assert failed[0].capstdout.strip() == 'foo'
+    assert failed[0].capstderr.strip() == ''
+    assert 'Executable timed out after 1.0 second(s)' in failed[0].longreprtext
