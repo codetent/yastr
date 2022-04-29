@@ -41,6 +41,7 @@ class TestConfig:
         default_factory=list,
         metadata={'validate': validate_markers},
     )
+    fixtures: List[str] = field(default_factory=list)
     scripts: List[str] = field(default_factory=list)
 
     @property
@@ -57,7 +58,9 @@ class TestConfig:
                 else:
                     return marker(**args)
 
-        return [_resolve(marker) for marker in self.markers]
+        marker_specs = self.markers.copy()
+        marker_specs.append(['usefixtures', self.fixtures])
+        return [_resolve(spec) for spec in marker_specs]
 
 
 TestConfigSchema = class_schema(TestConfig)
