@@ -1,6 +1,7 @@
 def test_setting(pytester):
-    pytester.makefile('.bat', testfile='@echo bar', redirect='@echo foo&& %*')
-    pytester.makefile('.ini', pytest="[pytest]\ntest_driver=redirect.bat")
+    pytester.makefile('.bat', driver='@echo foo&& %*')
+    pytester.makefile('.yastr.json', config='{"executable": "python", "args": ["-c", "print(\'bar\')"]}')
+    pytester.makefile('.ini', pytest="[pytest]\ntest_driver=driver.bat")
 
     run = pytester.inline_run(
         '--ignore=pytest.ini',
@@ -11,6 +12,6 @@ def test_setting(pytester):
 
     assert not skipped
     assert not failed
-    assert passed[0].nodeid == '.::testfile.bat'
+    assert passed[0].nodeid == '.::config.yastr.json'
     assert passed[0].capstdout.strip() == 'foo\nbar'
     assert passed[0].capstderr.strip() == ''
