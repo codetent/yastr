@@ -1,24 +1,21 @@
 import os
-import shutil
 from fnmatch import fnmatch
 from functools import cached_property
 from pathlib import Path
 from subprocess import CalledProcessError, TimeoutExpired, run
 
-from pytest import File, Item, Module, skip
+from pytest import Item, skip
 from _pytest.outcomes import Failed
 
+from .api.fixtures import FixtureRequest
 from .config import TestConfig, load_config
 
 
 class YastrTest(Item):
 
     def __init__(self, path, name=None, **kwargs):
-        super().__init__(name=(name or path.name), **kwargs)
-        self.path = path
-
-        for marker in self.test_config.resolved_markers:
-            self.add_marker(marker)
+        super().__init__(name=(name or path.name), path=path, **kwargs)
+        self.own_markers.extend(self.test_config.resolved_markers)
 
     @cached_property
     def test_config(self) -> TestConfig:
@@ -52,6 +49,9 @@ class YastrTest(Item):
         if test_driver:
             cmd = [test_driver] + cmd
 
+        fixture_req = FixtureRequest(self)
+        fixture_req._execute()
+
         try:
             proc = run(
                 cmd,
@@ -74,6 +74,8 @@ class YastrTest(Item):
         else:
             stdout, stderr = proc.stdout, proc.stderr
         finally:
+            fixture_req._teardown()
+
             self.add_report_section('call', 'stdout', stdout)
             self.add_report_section('call', 'stderr', stderr)
 
