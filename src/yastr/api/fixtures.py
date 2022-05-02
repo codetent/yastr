@@ -5,6 +5,16 @@ from weakref import finalize
 from wrapt import ObjectProxy
 
 
+class FixtureLookupError(LookupError):
+
+    def __init__(self, argname: str) -> None:
+        super().__init__(argname)
+        self.argname = argname
+
+    def __str__(self) -> str:
+        return f'fixture \'{self.argname}\' not found'
+
+
 class FixtureRequest:
 
     def __init__(self, node) -> None:
@@ -34,7 +44,7 @@ class FixtureRequest:
 
     @property
     def fixturenames(self):
-        return self._fixture_defs.keys()
+        return list(self._fixture_defs.keys())
 
     def addfinalizer(self, finalizer):
         self._stack.callback(finalizer)
@@ -43,7 +53,7 @@ class FixtureRequest:
         self.node.add_marker(marker)
 
     def raiseerror(self, msg):
-        raise self._fixture_manager.FixtureLookupError(None, self, msg)
+        raise FixtureLookupError(msg)
 
     def getfixturevalue(self, name):
         if name == 'request':
@@ -52,8 +62,22 @@ class FixtureRequest:
         if name in self._cache:
             return self._cache[name]
 
-        request = SubRequest(self, name)
-        value = request._execute()
+        try:
+            fixture_def = self._fixture_defs[name][0]
+        except (KeyError, IndexError):
+            self.raiseerror(name)
+
+        func = fixture_def.func
+        sig = inspect.signature(func)
+        param_names = sig.parameters.keys()
+        param_values = {param: SubRequest(self, name).getfixturevalue(param) for param in param_names}
+
+        if inspect.isgeneratorfunction(func):
+            func = contextmanager(func)
+            cm = func(**param_values)
+            value = self._stack.enter_context(cm)
+        else:
+            value = func(**param_values)
 
         self._cache[name] = value
         return value
@@ -69,29 +93,19 @@ class FixtureRequest:
 
 class SubRequest(ObjectProxy):
 
-    def __init__(self, request: FixtureRequest, name: str):
+    def __init__(self, request: FixtureRequest, fixturename: str):
         super().__init__(request)
-        self.fixturename = name
+        self._self_fixturename = fixturename
 
     def __repr__(self) -> str:
         return f'<SubRequest {self.fixturename!r} for {self.node!r}>'
+
+    @property
+    def fixturename(self):
+        return self._self_fixturename
 
     def getfixturevalue(self, name):
         if name == 'request':
             return self
 
         return self.__wrapped__.getfixturevalue(name)
-
-    def _execute(self):
-        fixture_def = self._fixture_defs[self.fixturename][0]
-        func = fixture_def.func
-        sig = inspect.signature(func)
-        param_names = sig.parameters.keys()
-        param_values = {name: self.getfixturevalue(name) for name in param_names}
-
-        if inspect.isgeneratorfunction(func):
-            func = contextmanager(func)
-            cm = func(**param_values)
-            return self._stack.enter_context(cm)
-        else:
-            return func(**param_values)

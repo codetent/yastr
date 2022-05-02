@@ -132,3 +132,72 @@ def test_dependency_diamond(pytester):
     assert passed[0].nodeid == '.::config.yastr.json'
     assert passed[0].capstdout.strip() == 'bar'
     assert passed[0].capstderr.strip() == 'a\nb\nc\nd'
+
+
+def test_request(pytester):
+    pytester.makefile('.bat', testfile='@echo bar')
+    pytester.makefile('.yastr.json', config='{"executable": "testfile.bat", "fixtures": ["foo"]}')
+    pytester.makeconftest('''
+        import pytest
+        import sys
+
+        @pytest.fixture
+        def bar(request):
+            assert request.fixturename == 'bar'
+            assert request.scope == 'session'
+            assert request.fixturenames == ['foo', 'bar']
+            assert request.function is None
+            assert request.cls is None
+            assert request.instance is None
+            assert request.module is None
+            assert request.node
+            assert request.config
+            assert request.fspath
+            assert request.keywords
+            assert request.session
+
+            assert request.addfinalizer
+            assert request.applymarker
+            assert request.raiseerror
+            assert request.getfixturevalue
+
+        @pytest.fixture
+        def foo(request, bar):
+            assert request.fixturename == 'foo'
+            assert request.scope == 'session'
+            assert request.fixturenames == ['foo', 'bar']
+            assert request.function is None
+            assert request.cls is None
+            assert request.instance is None
+            assert request.module is None
+            assert request.node
+            assert request.config
+            assert request.fspath
+            assert request.keywords
+            assert request.session
+
+            assert request.addfinalizer
+            assert request.applymarker
+            assert request.raiseerror
+            assert request.getfixturevalue
+    ''')
+
+    run = pytester.inline_run(plugins=['yastr.plugin'])
+    passed, skipped, failed = run.listoutcomes()
+
+    assert not skipped
+    assert not failed
+    assert passed[0].nodeid == '.::config.yastr.json'
+
+
+def test_missing(pytester):
+    pytester.makefile('.bat', testfile='@echo bar')
+    pytester.makefile('.yastr.json', config='{"executable": "testfile.bat", "fixtures": ["missing"]}')
+
+    run = pytester.inline_run(plugins=['yastr.plugin'])
+    passed, skipped, failed = run.listoutcomes()
+
+    assert not skipped
+    assert not passed
+    assert failed[0].nodeid == '.::config.yastr.json'
+    assert 'FixtureLookupError: fixture \'missing\' not found' in failed[0].longreprtext
