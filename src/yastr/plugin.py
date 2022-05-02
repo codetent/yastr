@@ -7,7 +7,7 @@ from subprocess import CalledProcessError, TimeoutExpired, run
 from pytest import Item, skip
 from _pytest.outcomes import Failed
 
-from .api.fixtures import FixtureRequest
+from .fixtures import FixtureRequest
 from .config import TestConfig, load_config
 
 
