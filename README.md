@@ -1,5 +1,5 @@
 <div align="center">
-  <!--<img src="doc/logo.png" width="250" />-->
+  <img src="doc/logo.svg" width="100" /><br><br>
   
   # <b>Y</b>et <b>A</b>nother <b>S</b>imple <b>T</b>est <b>R</b>unner
   
