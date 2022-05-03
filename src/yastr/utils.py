@@ -1,4 +1,8 @@
-def mark_text(text, lineno, colno, surround=10):
+"""Utility functions for different purposes."""
+
+
+def mark_text(text: str, lineno: int, colno: int, surround: int = 10) -> str:
+    """Cut snippet out of given text at given position and set marker."""
     line_text = text.splitlines()[lineno - 1]
     snippet_start = max(colno - surround, 0)
     snippet_end = min(colno + surround, len(line_text) - 1)

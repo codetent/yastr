@@ -1,50 +1,63 @@
+from __future__ import annotations
+
 import os
 from fnmatch import fnmatch
 from functools import cached_property
 from pathlib import Path
 from subprocess import CalledProcessError, TimeoutExpired, run
+from typing import TYPE_CHECKING
 
-from pytest import Item, skip
 from _pytest.outcomes import Failed
+from pytest import Item, skip
 
 from .fixtures import FixtureRequest
 from .config import TestConfig, load_config
 
+if TYPE_CHECKING:
+    from typing import Any, Dict, Optional, Tuple
+
+    from _pytest.compat import LEGACY_PATH
+    from pytest import Node
+
 
 class YastrTest(Item):
+    """Pytest item for running executables triggered by yastr config files."""
 
-    def __init__(self, path, name=None, **kwargs):
+    def __init__(self, path: Path, name: Optional[str] = None, **kwargs: Dict[str, Any]) -> None:
         super().__init__(name=(name or path.name), path=path, **kwargs)
-        self.own_markers.extend(self.test_config.resolved_markers)
+        self.own_markers.extend(self.user_config.resolved_markers)
 
     @cached_property
-    def test_config(self) -> TestConfig:
+    def user_config(self) -> TestConfig:
+        """User configuration for test."""
         return load_config(self.path)
 
     @property
-    def test_env(self):
+    def test_env(self) -> Dict[str, str]:
+        """Environment variables for executing the test."""
         new_env = os.environ.copy()
-        new_env.update(self.test_config.environment)
+        new_env.update(self.user_config.environment)
         return new_env
 
     @property
-    def test_timeout(self):
-        return self.test_config.timeout or self.config.getoption('timeout')
+    def test_timeout(self) -> float:
+        """Timeout for executing the test."""
+        return self.user_config.timeout or self.config.getoption('timeout')
 
     @property
     def nodeid(self) -> str:
         folder = self.path.parent.relative_to(self.config.rootpath)
         return f'{folder}::{self.name}'
 
-    def reportinfo(self):
+    def reportinfo(self) -> Tuple[LEGACY_PATH, int, str]:
         return self.fspath, 0, ''
 
-    def runtest(self):
-        if self.test_config.skip:
-            skip('Skip by user config')
+    def runtest(self) -> None:
+        """Run executable respecting yastr test config."""
+        if self.user_config.skip:
+            skip('Skipped by user config')
 
-        cmd = [self.test_config.executable] + self.test_config.args
-
+        cmd = [self.user_config.executable] + self.user_config.args
         test_driver = self.config.getini('test_driver')
         if test_driver:
             cmd = [test_driver] + cmd
@@ -56,7 +69,7 @@ class YastrTest(Item):
             proc = run(
                 cmd,
                 env=self.test_env,
-                encoding=self.test_config.encoding,
+                encoding=self.user_config.encoding,
                 timeout=self.test_timeout,
                 text=True,
                 capture_output=True,
@@ -68,7 +81,7 @@ class YastrTest(Item):
         except CalledProcessError as ex:
             stdout, stderr = ex.stdout, ex.stderr
             raise Failed(f'Executable returned code {proc.returncode}', pytrace=False) from None
-        except:
+        except:  # noqa: E722
             stdout, stderr = '', ''
             raise
         else:
@@ -80,7 +93,7 @@ class YastrTest(Item):
             self.add_report_section('call', 'stderr', stderr)
 
 
-def pytest_addoption(parser):
+def pytest_addoption(parser) -> None:
     parser.addini(
         'yastr_configs',
         type='args',
@@ -103,7 +116,7 @@ def pytest_addoption(parser):
     )
 
 
-def pytest_collect_file(path, parent):
+def pytest_collect_file(path: LEGACY_PATH, parent: Node) -> Node:
     is_config = any(fnmatch(path, pattern) for pattern in parent.config.getini('yastr_configs'))
     if is_config:
         return YastrTest.from_parent(path=Path(path), parent=parent)

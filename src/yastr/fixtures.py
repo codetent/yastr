@@ -1,11 +1,20 @@
+from __future__ import annotations
+
 import inspect
 from contextlib import ExitStack, contextmanager
+from typing import TYPE_CHECKING
 from weakref import finalize
 
 from wrapt import ObjectProxy
 
+if TYPE_CHECKING:
+    from typing import Any, List
+
+    from pytest import Node
+
 
 class FixtureLookupError(LookupError):
+    """Exception typically raised if fixture is undefined."""
 
     def __init__(self, argname: str) -> None:
         super().__init__(argname)
@@ -16,8 +25,12 @@ class FixtureLookupError(LookupError):
 
 
 class FixtureRequest:
+    """Fixture request of yastr test.
+    
+    This class shall be compatible with the pytest FixtureRequest.
+    """
 
-    def __init__(self, node) -> None:
+    def __init__(self, node: Node) -> None:
         self.node = node
         self.session = node.session
         self.fixturename = None
@@ -43,22 +56,23 @@ class FixtureRequest:
         return f'<FixtureRequest for {self.node!r}>'
 
     @property
-    def fixturenames(self):
+    def fixturenames(self) -> List[str]:
         return list(self._fixture_defs.keys())
 
-    def addfinalizer(self, finalizer):
+    def addfinalizer(self, finalizer) -> None:
         self._stack.callback(finalizer)
 
-    def applymarker(self, marker):
+    def applymarker(self, marker) -> None:
         self.node.add_marker(marker)
 
-    def raiseerror(self, msg):
+    def raiseerror(self, msg: str) -> None:
         raise FixtureLookupError(msg)
 
-    def getfixturevalue(self, name):
+    def getfixturevalue(self, name: str) -> Any:
         if name == 'request':
             return self
 
+        # Return cached value if available
         if name in self._cache:
             return self._cache[name]
 
@@ -82,18 +96,21 @@ class FixtureRequest:
         self._cache[name] = value
         return value
 
-    def _execute(self):
+    def _execute(self) -> None:
+        """Acquire requested fixtures."""
         fixture_names = tuple(arg for mark in self.node.iter_markers(name='usefixtures') for arg in mark.args)
         for name in fixture_names:
             self.getfixturevalue(name)
 
-    def _teardown(self):
+    def _teardown(self) -> None:
+        """Teardown acquired fixtures."""
         self._stack.close()
 
 
 class SubRequest(ObjectProxy):
+    """Request for dependency of fixture request."""
 
-    def __init__(self, request: FixtureRequest, fixturename: str):
+    def __init__(self, request: FixtureRequest, fixturename: str) -> None:
         super().__init__(request)
         self._self_fixturename = fixturename
 
@@ -101,10 +118,10 @@ class SubRequest(ObjectProxy):
         return f'<SubRequest {self.fixturename!r} for {self.node!r}>'
 
     @property
-    def fixturename(self):
+    def fixturename(self) -> List[str]:
         return self._self_fixturename
 
-    def getfixturevalue(self, name):
+    def getfixturevalue(self, name: str) -> Any:
         if name == 'request':
             return self
 

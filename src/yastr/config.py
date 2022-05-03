@@ -1,8 +1,11 @@
+# from __future__ import annotations  # Does not work with marshmallow dataclass
+
 import os
 import platform
 from dataclasses import dataclass, field
 from functools import singledispatchmethod
 from json import JSONDecodeError
+from pathlib import Path
 from pprint import pformat
 from textwrap import indent
 from typing import Any, Dict, List, Optional, Tuple, Union
@@ -19,9 +22,10 @@ MarkerArgsType = Tuple[str, List[Any]]
 MarkerKwargsType = Tuple[str, Dict[str, Any]]
 
 
-def validate_markers(obj):
+def validate_markers(obj: Any) -> None:
+    """Validate config marker spec."""
     if not isinstance(obj, (tuple, list)):
-        raise ValidationError(f'Invalid marker collection type', field_name='markers')
+        raise ValidationError('Invalid marker collection type', field_name='markers')
 
     for i, marker_spec in enumerate(obj):
         if isinstance(marker_spec, str):
@@ -34,14 +38,15 @@ def validate_markers(obj):
 
 
 class ConfigError(RuntimeError):
+    """Error typically raised if test config is invalid."""
 
-    def __init__(self, msg: str, details: Optional[str] = None, path=None) -> None:
+    def __init__(self, msg: str, details: Optional[str] = None, path: Path = None) -> None:
         super().__init__(msg)
         self.msg = msg
         self.details = details
         self.path = path
 
-    def __str__(self):
+    def __str__(self) -> str:
         text = self.msg + (f': {self.path}' if self.path else '')
 
         if self.details:
@@ -52,10 +57,11 @@ class ConfigError(RuntimeError):
     @singledispatchmethod
     @staticmethod  # Use staticmethod (see: https://bugs.python.org/issue39679)
     def of(ex, **kwargs):
+        """Create ConfigError from other Exception."""
         return ConfigError(str(ex), **kwargs)
 
     @of.register
-    def _(ex: JSONDecodeError, **kwargs):
+    def _(ex: JSONDecodeError, **kwargs: Dict[str, Any]):
         return ConfigError(
             f'Invalid JSON syntax at line {ex.lineno} column {ex.colno}',
             mark_text(ex.doc, ex.lineno, ex.colno),
@@ -63,7 +69,7 @@ class ConfigError(RuntimeError):
         )
 
     @of.register
-    def _(ex: ValidationError, **kwargs):
+    def _(ex: ValidationError, **kwargs: Dict[str, Any]):
         return ConfigError(
             'Invalid configuration values',
             pformat(ex.messages),
@@ -73,6 +79,22 @@ class ConfigError(RuntimeError):
 
 @dataclass
 class TestConfig:
+    """User-provided yastr test configuration.
+
+    Attributes:
+        executable: Path to executable that shall be called
+        args: Arguments that shall be provided to executable
+        environment: Environment variables to set
+        timeout: Timeout in seconds after which executable is killed
+        encoding: Encoding of stdout & stderr of executable
+        skip: Manually skip test
+        markers: Markers to add to the test.
+            <marker>:  Set marker without arguments
+            [<marker>, [<arg>, ...]]: Set marker with positional arguments
+            [<marker>, {<arg key>: <arg value>, ...}]: Set marker with keyword arguments
+        fixtures: Fixtures that shall be requested by test
+    """
+
     executable: str
     args: List[str] = field(default_factory=list)
     environment: Dict[str, str] = field(default_factory=dict)
@@ -87,6 +109,7 @@ class TestConfig:
 
     @property
     def resolved_markers(self) -> List[pytest.Mark]:
+        """List of all resolved markers including fixtures."""
 
         def _resolve(spec):
             if isinstance(spec, str):
@@ -107,7 +130,8 @@ class TestConfig:
 TestConfigSchema = class_schema(TestConfig)
 
 
-def load_config(path):
+def load_config(path: Path) -> TestConfig:
+    """Load test configuration from yaml or json file path."""
     try:
         config = anyconfig.load(path, ac_template=True, ac_context={'os': os, 'platform': platform})
         return TestConfigSchema().load(config)
