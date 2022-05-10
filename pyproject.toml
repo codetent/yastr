@@ -9,7 +9,7 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = ">=3.8,<3.11"
 
 anyconfig = {extras = ["template", "yaml"], version = "^0.13.0"}
 marshmallow-dataclass = {extras = ["union"], version = "^8.5.3"}
@@ -21,6 +21,7 @@ yapf = "^0.32.0"
 toml = "^0.10.2"
 pytest-cov = "^3.0.0"
 flake8 = "^4.0.1"
+pyinstaller = "^5.0.1"
 
 [tool.poetry.scripts]
 yastr = "yastr:main"
