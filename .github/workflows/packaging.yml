@@ -28,4 +28,11 @@ jobs:
     - name: Create pyinstaller executable
       run: |
         python -m poetry run pyinstaller pkg/pyinstaller/yastr.spec
-  
+    - name: Archive artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: yastr
+          path: |
+            dist/yastr
+            dist/yastr.*
+          retention-days: 1
