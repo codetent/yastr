@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import shlex
 from fnmatch import fnmatch
 from functools import cached_property
 from pathlib import Path
@@ -60,7 +61,7 @@ class YastrTest(Item):
         cmd = [self.user_config.executable] + self.user_config.args
         test_driver = self.config.getini('test_driver')
         if test_driver:
-            cmd = [test_driver] + cmd
+            cmd = shlex.split(test_driver) + cmd
 
         fixture_req = FixtureRequest(self)
         fixture_req._execute()
@@ -80,7 +81,7 @@ class YastrTest(Item):
             raise Failed(f'Executable timed out after {self.test_timeout} second(s)', pytrace=False) from None
         except CalledProcessError as ex:
             stdout, stderr = ex.stdout, ex.stderr
-            raise Failed(f'Executable returned code {proc.returncode}', pytrace=False) from None
+            raise Failed(f'Executable returned code {ex.returncode}', pytrace=False) from None
         except:  # noqa: E722
             stdout, stderr = '', ''
             raise

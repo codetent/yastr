@@ -1,7 +1,8 @@
 def test_setting(pytester):
-    pytester.makefile('.bat', driver='@echo foo&& %*')
+    pytester.makefile('.py',
+                      driver='import sys; from subprocess import run; print("foo", flush=True); run(sys.argv[1:])')
     pytester.makefile('.yastr.json', config='{"executable": "python", "args": ["-c", "print(\'bar\')"]}')
-    pytester.makefile('.ini', pytest="[pytest]\ntest_driver=driver.bat")
+    pytester.makefile('.ini', pytest="[pytest]\ntest_driver=python driver.py")
 
     run = pytester.inline_run(
         '--ignore=pytest.ini',
