@@ -57,7 +57,7 @@ def test_timeout(pytester):
     pytester.makefile(
         '.yastr.json',
         config=
-        '{"executable": "python", "args": ["-c", "import time; print(\\"foo\\", flush=True); time.sleep(100); print(\\"bar\\", flush=True);"], "timeout": 1}'
+        '{"executable": "python", "args": ["-c", "import time; print(1, flush=True); time.sleep(100); print(2, flush=True);"], "timeout": 1}'
     )
 
     run = pytester.inline_run(plugins=['yastr.plugin'])
@@ -66,7 +66,7 @@ def test_timeout(pytester):
     assert not passed
     assert not skipped
     assert failed[0].nodeid == '.::config.yastr.json'
-    assert failed[0].capstdout.strip() == 'foo'
+    assert failed[0].capstdout.strip() == '1'
     assert failed[0].capstderr.strip() == ''
     assert 'Executable timed out after 1.0 second(s)' in failed[0].longreprtext
 
@@ -75,7 +75,7 @@ def test_default_timeout(pytester):
     pytester.makefile(
         '.yastr.json',
         config=
-        '{"executable": "python", "args": ["-c", "import time; print(\\"foo\\", flush=True); time.sleep(100); print(\\"bar\\", flush=True);"]}'
+        '{"executable": "python", "args": ["-c", "import time; print(1, flush=True); time.sleep(100); print(2, flush=True);"]}'
     )
 
     run = pytester.inline_run('--timeout=1', plugins=['yastr.plugin'])
@@ -84,6 +84,6 @@ def test_default_timeout(pytester):
     assert not passed
     assert not skipped
     assert failed[0].nodeid == '.::config.yastr.json'
-    assert failed[0].capstdout.strip() == 'foo'
+    assert failed[0].capstdout.strip() == '1'
     assert failed[0].capstderr.strip() == ''
     assert 'Executable timed out after 1.0 second(s)' in failed[0].longreprtext
