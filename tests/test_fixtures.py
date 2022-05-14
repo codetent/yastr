@@ -1,6 +1,6 @@
 def test_setup(pytester):
-    pytester.makefile('.bat', testfile='@echo bar')
-    pytester.makefile('.yastr.json', config='{"executable": "testfile.bat", "fixtures": ["foo"]}')
+    pytester.makefile('.py', testfile='print("bar")')
+    pytester.makefile('.yastr.json', config='{"executable": "python", "args": ["testfile.py"], "fixtures": ["foo"]}')
     pytester.makeconftest('''
         import pytest
         import sys
@@ -21,8 +21,8 @@ def test_setup(pytester):
 
 
 def test_yield(pytester):
-    pytester.makefile('.bat', testfile='@echo bar')
-    pytester.makefile('.yastr.json', config='{"executable": "testfile.bat", "fixtures": ["foo"]}')
+    pytester.makefile('.py', testfile='print("bar")')
+    pytester.makefile('.yastr.json', config='{"executable": "python", "args": ["testfile.py"], "fixtures": ["foo"]}')
     pytester.makeconftest('''
         import pytest
         import sys
@@ -45,8 +45,8 @@ def test_yield(pytester):
 
 
 def test_dependency_single(pytester):
-    pytester.makefile('.bat', testfile='@echo bar')
-    pytester.makefile('.yastr.json', config='{"executable": "testfile.bat", "fixtures": ["foo"]}')
+    pytester.makefile('.py', testfile='print("bar")')
+    pytester.makefile('.yastr.json', config='{"executable": "python", "args": ["testfile.py"], "fixtures": ["foo"]}')
     pytester.makeconftest('''
         import pytest
         import sys
@@ -71,8 +71,8 @@ def test_dependency_single(pytester):
 
 
 def test_dependency_multiple(pytester):
-    pytester.makefile('.bat', testfile='@echo bar')
-    pytester.makefile('.yastr.json', config='{"executable": "testfile.bat", "fixtures": ["c"]}')
+    pytester.makefile('.py', testfile='print("bar")')
+    pytester.makefile('.yastr.json', config='{"executable": "python", "args": ["testfile.py"], "fixtures": ["c"]}')
     pytester.makeconftest('''
         import pytest
         import sys
@@ -101,8 +101,8 @@ def test_dependency_multiple(pytester):
 
 
 def test_dependency_diamond(pytester):
-    pytester.makefile('.bat', testfile='@echo bar')
-    pytester.makefile('.yastr.json', config='{"executable": "testfile.bat", "fixtures": ["d"]}')
+    pytester.makefile('.py', testfile='print("bar")')
+    pytester.makefile('.yastr.json', config='{"executable": "python", "args": ["testfile.py"], "fixtures": ["d"]}')
     pytester.makeconftest('''
         import pytest
         import sys
@@ -135,8 +135,8 @@ def test_dependency_diamond(pytester):
 
 
 def test_request(pytester):
-    pytester.makefile('.bat', testfile='@echo bar')
-    pytester.makefile('.yastr.json', config='{"executable": "testfile.bat", "fixtures": ["foo"]}')
+    pytester.makefile('.py', testfile='print("bar")')
+    pytester.makefile('.yastr.json', config='{"executable": "python", "args": ["testfile.py"], "fixtures": ["foo"]}')
     pytester.makeconftest('''
         import pytest
         import sys
@@ -191,8 +191,9 @@ def test_request(pytester):
 
 
 def test_missing(pytester):
-    pytester.makefile('.bat', testfile='@echo bar')
-    pytester.makefile('.yastr.json', config='{"executable": "testfile.bat", "fixtures": ["missing"]}')
+    pytester.makefile('.py', testfile='print("bar")')
+    pytester.makefile('.yastr.json',
+                      config='{"executable": "python", "args": ["testfile.py"], "fixtures": ["missing"]}')
 
     run = pytester.inline_run(plugins=['yastr.plugin'])
     passed, skipped, failed = run.listoutcomes()
