@@ -32,3 +32,7 @@ And it supports everything that pytest offers:
 - Selecting specific tests
 - Running tests written in Python
 - And much more: https://docs.pytest.org/en/6.2.x/contents.html
+
+## Documentation
+
+- Quickstart: [doc/guide/quickstart.md](doc/guide/quickstart.md)
