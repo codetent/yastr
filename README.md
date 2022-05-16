@@ -36,6 +36,7 @@ And it supports everything that pytest offers:
 ## Documentation
 
 - Quickstart: [doc/guide/quickstart.md](doc/guide/quickstart.md)
+- Advanced: [doc/guide/advanced.md](doc/guide/advanced.md)
 
 ## Installation
 
