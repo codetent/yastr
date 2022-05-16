@@ -1,6 +1,6 @@
 def test_executable(pytester):
-    pytester.makefile('.bat', testfile='@echo works!')
-    pytester.makefile('.yastr.json', config='{"executable": "testfile.bat"}')
+    pytester.makefile('.py', testfile='print("works!")')
+    pytester.makefile('.yastr.json', config='{"executable": "python", "args": ["testfile.py"]}')
 
     run = pytester.inline_run(plugins=['yastr.plugin'])
     passed, skipped, failed = run.listoutcomes()
@@ -13,8 +13,8 @@ def test_executable(pytester):
 
 
 def test_args(pytester):
-    pytester.makefile('.bat', testfile='@echo %1 %2')
-    pytester.makefile('.yastr.json', config='{"executable": "testfile.bat", "args": ["foo", "bar"]}')
+    pytester.makefile('.py', testfile='import sys; print(sys.argv[1], sys.argv[2])')
+    pytester.makefile('.yastr.json', config='{"executable": "python", "args": ["testfile.py", "foo", "bar"]}')
 
     run = pytester.inline_run(plugins=['yastr.plugin'])
     passed, skipped, failed = run.listoutcomes()
@@ -27,8 +27,9 @@ def test_args(pytester):
 
 
 def test_env(pytester):
-    pytester.makefile('.bat', testfile='@echo %FOO%')
-    pytester.makefile('.yastr.json', config='{"executable": "testfile.bat", "environment": {"FOO": "bar"}}')
+    pytester.makefile('.py', testfile='import os; print(os.environ["FOO"])')
+    pytester.makefile('.yastr.json',
+                      config='{"executable": "python", "args": ["testfile.py"], "environment": {"FOO": "bar"}}')
 
     run = pytester.inline_run(plugins=['yastr.plugin'])
     passed, skipped, failed = run.listoutcomes()
@@ -41,7 +42,7 @@ def test_env(pytester):
 
 
 def test_skip(pytester):
-    pytester.makefile('.bat', testfile='@echo works!')
+    pytester.makefile('.py', testfile='print("works!")')
     pytester.makefile('.yastr.json', config='{"executable": "testfile.bat", "skip": "true"}')
 
     run = pytester.inline_run(plugins=['yastr.plugin'])
@@ -53,11 +54,14 @@ def test_skip(pytester):
 
 
 def test_timeout(pytester):
-    pytester.makefile(
-        '.yastr.json',
-        config=
-        '{"executable": "python", "args": ["-c", "import time; print(\\"foo\\", flush=True); time.sleep(100); print(\\"bar\\", flush=True);"], "timeout": 1}'
-    )
+    pytester.makefile('.py',
+                      testfile="""
+        import time
+        print('foo', flush=True)
+        time.sleep(100)
+        print('bar', flush=True)
+    """)
+    pytester.makefile('.yastr.json', config='{"executable": "python", "args": ["testfile.py"], "timeout": 1}')
 
     run = pytester.inline_run(plugins=['yastr.plugin'])
     passed, skipped, failed = run.listoutcomes()
@@ -71,11 +75,14 @@ def test_timeout(pytester):
 
 
 def test_default_timeout(pytester):
-    pytester.makefile(
-        '.yastr.json',
-        config=
-        '{"executable": "python", "args": ["-c", "import time; print(\\"foo\\", flush=True); time.sleep(100); print(\\"bar\\", flush=True);"]}'
-    )
+    pytester.makefile('.py',
+                      testfile="""
+        import time
+        print('foo', flush=True)
+        time.sleep(100)
+        print('bar', flush=True)
+    """)
+    pytester.makefile('.yastr.json', config='{"executable": "python", "args": ["testfile.py"]}')
 
     run = pytester.inline_run('--timeout=1', plugins=['yastr.plugin'])
     passed, skipped, failed = run.listoutcomes()

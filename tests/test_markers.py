@@ -1,6 +1,6 @@
 def test_str(pytester):
-    pytester.makefile('.bat', testfile='@echo works!')
-    pytester.makefile('.yastr.json', config='{"executable": "testfile.bat", "markers": ["skip"]}')
+    pytester.makefile('.py', testfile='print("works!")')
+    pytester.makefile('.yastr.json', config='{"executable": "python", "args": ["testfile.py"], "markers": ["skip"]}')
 
     run = pytester.inline_run(plugins=['yastr.plugin'])
     passed, skipped, failed = run.listoutcomes()
@@ -11,8 +11,9 @@ def test_str(pytester):
 
 
 def test_args(pytester):
-    pytester.makefile('.bat', testfile='@echo works!')
-    pytester.makefile('.yastr.json', config='{"executable": "testfile.bat", "markers": [["skip", ["foobar"]]]}')
+    pytester.makefile('.py', testfile='print("works!")')
+    pytester.makefile('.yastr.json',
+                      config='{"executable": "python", "args": ["testfile.py"], "markers": [["skip", ["foobar"]]]}')
 
     run = pytester.inline_run(plugins=['yastr.plugin'])
     passed, skipped, failed = run.listoutcomes()
@@ -24,9 +25,10 @@ def test_args(pytester):
 
 
 def test_kwargs(pytester):
-    pytester.makefile('.bat', testfile='@echo works!')
-    pytester.makefile('.yastr.json',
-                      config='{"executable": "testfile.bat", "markers": [["skip", {"reason": "foobar"}]]}')
+    pytester.makefile('.py', testfile='print("works!")')
+    pytester.makefile(
+        '.yastr.json',
+        config='{"executable": "python", "args": ["testfile.py"], "markers": [["skip", {"reason": "foobar"}]]}')
 
     run = pytester.inline_run(plugins=['yastr.plugin'])
     passed, skipped, failed = run.listoutcomes()

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import shlex
 from fnmatch import fnmatch
 from functools import cached_property
 from pathlib import Path
@@ -10,8 +11,8 @@ from typing import TYPE_CHECKING
 from _pytest.outcomes import Failed
 from pytest import Item, skip
 
-from .fixtures import FixtureRequest
 from .config import TestConfig, load_config
+from .fixtures import FixtureRequest
 
 if TYPE_CHECKING:
     from typing import Any, Dict, Optional, Tuple
@@ -60,7 +61,7 @@ class YastrTest(Item):
         cmd = [self.user_config.executable] + self.user_config.args
         test_driver = self.config.getini('test_driver')
         if test_driver:
-            cmd = [test_driver] + cmd
+            cmd = shlex.split(test_driver) + cmd
 
         fixture_req = FixtureRequest(self)
         fixture_req._execute()
@@ -69,9 +70,7 @@ class YastrTest(Item):
             proc = run(
                 cmd,
                 env=self.test_env,
-                encoding=self.user_config.encoding,
                 timeout=self.test_timeout,
-                text=True,
                 capture_output=True,
                 check=True,
             )
@@ -80,7 +79,7 @@ class YastrTest(Item):
             raise Failed(f'Executable timed out after {self.test_timeout} second(s)', pytrace=False) from None
         except CalledProcessError as ex:
             stdout, stderr = ex.stdout, ex.stderr
-            raise Failed(f'Executable returned code {proc.returncode}', pytrace=False) from None
+            raise Failed(f'Executable returned code {ex.returncode}', pytrace=False) from None
         except:  # noqa: E722
             stdout, stderr = '', ''
             raise
@@ -89,8 +88,13 @@ class YastrTest(Item):
         finally:
             fixture_req._teardown()
 
-            self.add_report_section('call', 'stdout', stdout)
-            self.add_report_section('call', 'stderr', stderr)
+            if stdout is not None:
+                stdout = stdout.decode(self.user_config.encoding)
+                self.add_report_section('call', 'stdout', stdout)
+
+            if stderr is not None:
+                stderr = stderr.decode(self.user_config.encoding)
+                self.add_report_section('call', 'stderr', stderr)
 
 
 def pytest_addoption(parser) -> None:
