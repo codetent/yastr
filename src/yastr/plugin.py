@@ -11,8 +11,8 @@ from typing import TYPE_CHECKING
 from _pytest.outcomes import Failed
 from pytest import Item, skip
 
-from .fixtures import FixtureRequest
 from .config import TestConfig, load_config
+from .fixtures import FixtureRequest
 
 if TYPE_CHECKING:
     from typing import Any, Dict, Optional, Tuple
@@ -70,9 +70,7 @@ class YastrTest(Item):
             proc = run(
                 cmd,
                 env=self.test_env,
-                encoding=self.user_config.encoding,
                 timeout=self.test_timeout,
-                text=True,
                 capture_output=True,
                 check=True,
             )
@@ -90,8 +88,13 @@ class YastrTest(Item):
         finally:
             fixture_req._teardown()
 
-            self.add_report_section('call', 'stdout', stdout)
-            self.add_report_section('call', 'stderr', stderr)
+            if stdout is not None:
+                stdout = stdout.decode(self.user_config.encoding)
+                self.add_report_section('call', 'stdout', stdout)
+
+            if stderr is not None:
+                stderr = stderr.decode(self.user_config.encoding)
+                self.add_report_section('call', 'stderr', stderr)
 
 
 def pytest_addoption(parser) -> None:
