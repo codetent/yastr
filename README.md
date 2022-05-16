@@ -36,3 +36,11 @@ And it supports everything that pytest offers:
 ## Documentation
 
 - Quickstart: [doc/guide/quickstart.md](doc/guide/quickstart.md)
+
+## Installation
+
+### Python
+
+```bash
+$ pip install yastr
+```
