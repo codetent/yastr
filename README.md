@@ -1,12 +1,18 @@
 <div align="center">
-  <img src="doc/logo.svg" width="100" /><br>
+  <br>
+  <img src="https://raw.githubusercontent.com/codetent/yastr/main/doc/logo.svg" width="100" /><br>
   
   # <b>Y</b>et <b>A</b>nother <b>S</b>imple <b>T</b>est <b>R</b>unner
   
   A simple test runner for just calling executables and generating reports.
   <br/><br/>
-
 </div>
+
+![PyPI](https://img.shields.io/pypi/v/yastr)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/yastr)
+![PyPI - License](https://img.shields.io/pypi/l/yastr)
+[![Python package](https://github.com/codetent/yastr/actions/workflows/python-package.yml/badge.svg?branch=main)](https://github.com/codetent/yastr/actions/workflows/python-package.yml)
+[![Packaging](https://github.com/codetent/yastr/actions/workflows/packaging.yml/badge.svg?branch=main)](https://github.com/codetent/yastr/actions/workflows/packaging.yml)
 
 ## Description
 
@@ -35,8 +41,8 @@ And it supports everything that pytest offers:
 
 ## Documentation
 
-- Quickstart: [doc/guide/quickstart.md](doc/guide/quickstart.md)
-- Advanced: [doc/guide/advanced.md](doc/guide/advanced.md)
+- Quickstart: [doc/guide/quickstart.md](https://github.com/codetent/yastr/blob/main/doc/guide/quickstart.md)
+- Advanced: [doc/guide/advanced.md](https://github.com/codetent/yastr/blob/main/doc/guide/advanced.md)
 
 ## Installation
 
