@@ -48,7 +48,13 @@ There are various ways how they are specified in the configuration file.
         - [skip, {reason: Skipped because of any reason}]
     ```
 
-Note that only markers on test case level are supported.
+**Note that only markers on test case level are supported.**
+
+Since yastr is based on pytest, tests with markers can be filtered by calling yastr with the same marker expression parameter (`-m`) as it exists for pytest:
+
+```bash
+yastr -m <MARKEXPR>
+```
 
 # Fixtures
 
