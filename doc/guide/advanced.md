@@ -12,7 +12,7 @@ skip: True
 
 Sometimes, test executables can be stuck or just last very long. In this case it could make sense to set a timeout after which the test should be aborted. After exceeding it, the current executable will be killed and the test runner will proceeed.
 
-It can be enabled by adding the timeout key to the test specification:
+It can be enabled for a test case by adding the timeout key to the test specification:
 
 ```yaml
 timeout: 10 # seconds

@@ -32,3 +32,19 @@ After creating the configuration file, the test can be run by simply calling in 
 ```bash
 $ yastr
 ```
+
+---
+
+Since yastr is only wrapping pytest, the same could be achieved by enabling the yastr plugin for pytest in your conftest.py file:
+
+```py
+pytest_plugins = ('yastr.plugin',)
+```
+
+and calling:
+
+```bash
+$ pytest
+```
+
+
