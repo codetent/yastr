@@ -1,6 +1,6 @@
 <div align="center">
   <br>
-  <img src="doc/logo.svg" width="100" /><br>
+  <img src="https://raw.githubusercontent.com/codetent/yastr/main/doc/logo.svg" width="100" /><br>
   
   # <b>Y</b>et <b>A</b>nother <b>S</b>imple <b>T</b>est <b>R</b>unner
   
@@ -41,8 +41,8 @@ And it supports everything that pytest offers:
 
 ## Documentation
 
-- Quickstart: [doc/guide/quickstart.md](doc/guide/quickstart.md)
-- Advanced: [doc/guide/advanced.md](doc/guide/advanced.md)
+- Quickstart: [doc/guide/quickstart.md](https://github.com/codetent/yastr/blob/main/doc/guide/quickstart.md)
+- Advanced: [doc/guide/advanced.md](https://github.com/codetent/yastr/blob/main/doc/guide/advanced.md)
 
 ## Installation
 
