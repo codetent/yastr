@@ -18,7 +18,7 @@ information required for the test case:
 
 ```yaml
 executable: python
-args: [-c, "import os; print(os.environ['VAR']")]
+args: [-c, "import os; print(os.environ['VAR'])"]
 environment:
     VAR: foobar
 ```
