@@ -4,6 +4,21 @@ version = "0.1.0"
 description = "Yet another simple test runner"
 authors = ["Christoph Swoboda <codetent@gmail.com>"]
 license = "MIT"
+readme = "README.md"
+repository = "https://github.com/codetent/yastr"
+homepage = "https://github.com/codetent/yastr"
+keywords = ["test", "testing", "runner", "pytest", "executable"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Framework :: Pytest",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+    "Topic :: Software Development :: Testing",
+]
 packages = [
     { include = "yastr", from = "src" },
 ]
