@@ -2,7 +2,7 @@
 name = "yastr"
 version = "0.1.0"
 description = "Yet another simple test runner"
-authors = ["Your Name <you@example.com>"]
+authors = ["Christoph Swoboda <codetent@gmail.com>"]
 license = "MIT"
 packages = [
     { include = "yastr", from = "src" },
